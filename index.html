@@ -10,14 +10,12 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Estilos para o ícone de seta */
         .arrow-icon {
             transition: transform 0.3s ease-in-out;
         }
         .arrow-icon.rotated {
             transform: rotate(90deg);
         }
-        /* Estilo para a mensagem de copiado */
         .copied-message {
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
@@ -44,7 +42,6 @@
     </div>
 
     <script>
-        // Dados dos pareceres
         const pareceresData = {
             "Pareceres Gerais": {
                 "Pareceres Gerais": [
@@ -76,7 +73,7 @@
                     { "LAUDO DE PRODUÇÃO AGROPECUÁRIA": "Ajuste necessário no laudo de produção." },
                     { "RENDA EFETIVA SOMADA COM PREVISÃO": "Ajuste necessário quando é somada renda agropecuária de previsão com a efetiva." }
                 ],
-                "Pareceres de renda, PJ": [], // Vazio, pois não havia pareceres específicos listados, apenas o cabeçalho
+                "Pareceres de renda, PJ": [],
                 "Pareceres de renda, SIMPLES": [
                     { "COMPROVANTE DO SIMPLES NACIONAL": "Solicitar o ajuste do documento referente ao SIMPLES. Enquadra-se aqui qualquer tipo (declaratório, extrato e recibo) de ajuste, desde que seja sobre esses documentos." },
                     { "CONSULTA DE OPÇÃO DO SIMPLES": "Falta da consulta de opção do simples em sua chave adequada / ajuste na consulta." },
@@ -176,40 +173,26 @@
         const searchInput = document.getElementById('searchInput');
         const pareceresContainer = document.getElementById('pareceresContainer');
 
-        /**
-         * Copia o texto fornecido para a área de transferência do usuário.
-         * Exibe uma mensagem de "Copiado!" temporariamente.
-         * @param {string} text - O texto a ser copiado.
-         * @param {HTMLElement} messageElement - O elemento HTML para exibir a mensagem de "Copiado!".
-         */
         function copyParecer(text, messageElement) {
-            // Cria um elemento de textarea temporário
             const textarea = document.createElement('textarea');
             textarea.value = text;
-            textarea.style.position = 'fixed'; // Garante que não afete o layout
-            textarea.style.opacity = 0; // Torna-o invisível
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = 0;
             document.body.appendChild(textarea);
 
-            // Seleciona o texto e executa o comando de cópia
             textarea.select();
             document.execCommand('copy');
 
-            // Remove o textarea temporário
             document.body.removeChild(textarea);
 
-            // Exibe a mensagem de "Copiado!"
             messageElement.classList.add('show');
             setTimeout(() => {
                 messageElement.classList.remove('show');
-            }, 1500); // Esconde a mensagem após 1.5 segundos
+            }, 1500);
         }
 
-        /**
-         * Renderiza os pareceres na página.
-         * @param {object} data - Os dados dos pareceres a serem renderizados.
-         */
         function renderPareceres(data) {
-            pareceresContainer.innerHTML = ''; // Limpa o container
+            pareceresContainer.innerHTML = '';
             let hasResults = false;
 
             for (const mainCategory in data) {
@@ -225,14 +208,13 @@
                     if (pareceres.length > 0) {
                         pareceres.forEach((parecerObj, index) => {
                             const key = Object.keys(parecerObj)[0];
-                            const value = parecerObj[key];
-                            const fullParecerText = `${key}: ${value}`; // Texto completo para copiar
+                            const fullParecerText = `${key} : \n`;
 
                             subCategoryHtml += `
                                 <div class="bg-gray-50 p-4 rounded-md border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between">
                                     <div>
                                         <h4 class="font-semibold text-gray-800 text-lg mb-1">${key}</h4>
-                                        <p class="text-gray-600 text-base">${value}</p>
+                                        <p class="text-gray-600 text-base">${parecerObj[key]}</p>
                                     </div>
                                     <div class="flex items-center mt-3 sm:mt-0 sm:ml-4">
                                         <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200"
@@ -284,10 +266,6 @@
             }
         }
 
-        /**
-         * Alterna a visibilidade do conteúdo do acordeão.
-         * @param {HTMLElement} button - O botão que acionou a função.
-         */
         function toggleAccordion(button) {
             const content = button.nextElementSibling;
             const icon = button.querySelector('.arrow-icon');
@@ -301,9 +279,6 @@
             }
         }
 
-        /**
-         * Filtra os pareceres com base no termo de pesquisa.
-         */
         function filterPareceres() {
             const searchTerm = searchInput.value.toLowerCase();
             const filteredData = {};
@@ -317,7 +292,6 @@
                     const filteredPareceres = pareceres.filter(parecerObj => {
                         const key = Object.keys(parecerObj)[0];
                         const value = parecerObj[key];
-                        // Filtra se o termo de pesquisa está na chave do parecer, no valor ou na subcategoria
                         return key.toLowerCase().includes(searchTerm) ||
                                value.toLowerCase().includes(searchTerm) ||
                                subCategory.toLowerCase().includes(searchTerm) ||
@@ -336,10 +310,8 @@
             renderPareceres(filteredData);
         }
 
-        // Adiciona um listener para o evento 'input' na barra de pesquisa
         searchInput.addEventListener('input', filterPareceres);
 
-        // Renderiza todos os pareceres ao carregar a página
         window.onload = () => {
             renderPareceres(pareceresData);
         };
