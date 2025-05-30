@@ -17,6 +17,14 @@
         .arrow-icon.rotated {
             transform: rotate(90deg);
         }
+        /* Estilo para a mensagem de copiado */
+        .copied-message {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .copied-message.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
@@ -169,6 +177,34 @@
         const pareceresContainer = document.getElementById('pareceresContainer');
 
         /**
+         * Copia o texto fornecido para a área de transferência do usuário.
+         * Exibe uma mensagem de "Copiado!" temporariamente.
+         * @param {string} text - O texto a ser copiado.
+         * @param {HTMLElement} messageElement - O elemento HTML para exibir a mensagem de "Copiado!".
+         */
+        function copyParecer(text, messageElement) {
+            // Cria um elemento de textarea temporário
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; // Garante que não afete o layout
+            textarea.style.opacity = 0; // Torna-o invisível
+            document.body.appendChild(textarea);
+
+            // Seleciona o texto e executa o comando de cópia
+            textarea.select();
+            document.execCommand('copy');
+
+            // Remove o textarea temporário
+            document.body.removeChild(textarea);
+
+            // Exibe a mensagem de "Copiado!"
+            messageElement.classList.add('show');
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+            }, 1500); // Esconde a mensagem após 1.5 segundos
+        }
+
+        /**
          * Renderiza os pareceres na página.
          * @param {object} data - Os dados dos pareceres a serem renderizados.
          */
@@ -187,13 +223,24 @@
                     let subCategoryHasResults = false;
 
                     if (pareceres.length > 0) {
-                        pareceres.forEach(parecerObj => {
+                        pareceres.forEach((parecerObj, index) => {
                             const key = Object.keys(parecerObj)[0];
                             const value = parecerObj[key];
+                            const fullParecerText = `${key}: ${value}`; // Texto completo para copiar
+
                             subCategoryHtml += `
-                                <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
-                                    <h4 class="font-semibold text-gray-800 text-lg mb-1">${key}</h4>
-                                    <p class="text-gray-600 text-base">${value}</p>
+                                <div class="bg-gray-50 p-4 rounded-md border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 text-lg mb-1">${key}</h4>
+                                        <p class="text-gray-600 text-base">${value}</p>
+                                    </div>
+                                    <div class="flex items-center mt-3 sm:mt-0 sm:ml-4">
+                                        <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200"
+                                                onclick="copyParecer(decodeURIComponent('${encodeURIComponent(fullParecerText)}'), document.getElementById('copiedMessage-${mainCategory.replace(/\s/g, '-')}-${subCategory.replace(/\s/g, '-')}-${index}'))">
+                                            Copiar
+                                        </button>
+                                        <span id="copiedMessage-${mainCategory.replace(/\s/g, '-')}-${subCategory.replace(/\s/g, '-')}-${index}" class="copied-message text-sm text-green-700 ml-2">Copiado!</span>
+                                    </div>
                                 </div>
                             `;
                             subCategoryHasResults = true;
